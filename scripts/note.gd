@@ -7,17 +7,16 @@ var touched: bool = false
 var active: bool = true
 
 var radius: float = 60
-var white = Color(1.0, 1.0, 1.0, 1.0)
+const white = Color(1.0, 1.0, 1.0, 1.0)
 
 func _ready() -> void:
 	collision_shape_2d.shape.radius = radius
-	pass
 
 func _process(delta: float) -> void:
 	pass
 
 func _on_draw() -> void:
-	draw_circle(Vector2.ZERO, radius, white, true, 0.0, false)
+	draw_circle(Vector2.ZERO, radius, white, true, 0.0, true)
 	pass
 
 

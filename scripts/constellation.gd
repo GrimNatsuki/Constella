@@ -2,8 +2,12 @@
 extends Node2D
 
 @onready var timer = $Timer
-var scene = preload("res://scenes/note.tscn")
-var note = scene.instantiate()
+var scene
+var note_data = NoteData.new()
+
+var note
+
+var timing_circle
 
 var chart_active: bool = false
 var song_playing: bool = false
@@ -22,27 +26,44 @@ var current_bar: int = 0
 var current_subdivision = 0
 
 var note_timings = [7, 15, 23, 31]
-var note_position = Vector2(40.5, 80)
 
 var grid_size:Vector2
 
 func set_note_pos(x:float, y:float):
-	note.position = Vector2(x*grid_size.x, y*grid_size.y)
-	pass
+	note_data.position = Vector2(x*grid_size.x, y*grid_size.y)
+	
+func set_note_size(size:int):
+	note_data.size = size
+
+func set_note_data(note:Node2D):
+	note.position = note_data.position
+
 func init_grid():
 	grid_size.x = get_viewport_rect().size.x/80
 	grid_size.y = get_viewport_rect().size.y/45
 	
+func spawn_note(note_data:NoteData):
+	pass
 
 func _ready() -> void:
+	
+	
 	init_grid()
-	set_note_pos(40.5, 23)
 	
 	timer.start(countdown)
 	chart_active = true
+	scene = preload("res://scenes/note.tscn")
+	note = scene.instantiate()
+	scene = preload("res://scenes/timing_circle.tscn")
+	timing_circle = scene.instantiate()
 	
+	set_note_pos(40.5, 23)
+	set_note_data(note)
 	add_child(note)
-	note.position = Vector2(40.5*grid_size.x, 23*grid_size.y)
+	
+	set_note_data(timing_circle)
+	timing_circle.radius = note.radius
+	add_child(timing_circle)
 	
 
 func _process(delta: float) -> void:
