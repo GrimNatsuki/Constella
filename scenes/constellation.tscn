@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bmd52jpyqg3ey"]
+
+[ext_resource type="Script" uid="uid://cjtynbflvah6e" path="res://scripts/constellation.gd" id="1_iae3p"]
+
+[node name="Constellation" type="Node2D" unique_id=1213737347]
+script = ExtResource("1_iae3p")
+
+[node name="Timer" type="Timer" parent="." unique_id=843839825]
+wait_time = 8.0
+one_shot = true
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=757407343]
+anchor_mode = 0
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="draw" from="Note" to="Note" method="_on_draw"]
