@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://uhc25c6gqsxx" path="res://scripts/note.gd" id="1_t3yvt"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p10ry"]
-radius = 60.0
+radius = 0.0
 
 [node name="Note" type="Node2D" unique_id=1114746095]
 script = ExtResource("1_t3yvt")
@@ -13,5 +13,9 @@ script = ExtResource("1_t3yvt")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=720070478]
 shape = SubResource("CircleShape2D_p10ry")
 
+[node name="Timer" type="Timer" parent="." unique_id=929270627]
+
 [connection signal="draw" from="." to="." method="_on_draw"]
+[connection signal="tree_exited" from="." to="." method="_on_tree_exited"]
 [connection signal="input_event" from="Area2D" to="." method="_on_area_2d_input_event"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

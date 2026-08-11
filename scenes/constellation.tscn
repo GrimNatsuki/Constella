@@ -13,4 +13,3 @@ one_shot = true
 anchor_mode = 0
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
-[connection signal="draw" from="Note" to="Note" method="_on_draw"]

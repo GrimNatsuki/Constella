@@ -12,7 +12,6 @@ func _ready() -> void:
 	timer.start(timer_duration)
 	pass 
 
-
 func _process(delta: float) -> void:
 	queue_redraw()
 
