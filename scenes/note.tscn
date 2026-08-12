@@ -16,6 +16,7 @@ shape = SubResource("CircleShape2D_p10ry")
 [node name="Timer" type="Timer" parent="." unique_id=929270627]
 
 [connection signal="draw" from="." to="." method="_on_draw"]
+[connection signal="tree_entered" from="." to="." method="_on_tree_entered"]
 [connection signal="tree_exited" from="." to="." method="_on_tree_exited"]
 [connection signal="input_event" from="Area2D" to="." method="_on_area_2d_input_event"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
