@@ -14,6 +14,7 @@ script = ExtResource("1_t3yvt")
 shape = SubResource("CircleShape2D_p10ry")
 
 [node name="Timer" type="Timer" parent="." unique_id=929270627]
+one_shot = true
 
 [connection signal="draw" from="." to="." method="_on_draw"]
 [connection signal="tree_entered" from="." to="." method="_on_tree_entered"]
