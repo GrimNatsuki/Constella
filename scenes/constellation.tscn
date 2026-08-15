@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://bmd52jpyqg3ey"]
 
 [ext_resource type="Script" uid="uid://cjtynbflvah6e" path="res://scripts/constellation.gd" id="1_iae3p"]
+[ext_resource type="AudioStream" uid="uid://c8da86xoy73bm" path="res://assets/507350__akustika__hcq-01.wav" id="2_wvlwd"]
+[ext_resource type="AudioStream" uid="uid://b815u0bg1wd4d" path="res://assets/Masayoshi Minoshima ⧸ ALSTROEMERIA RECORDS - [Alstroemeria Records]Bad Apple!! feat.nomico(Shadow Animation Version)[ACVS.008_Tr.00].mp3" id="3_ogepb"]
 
 [node name="Constellation" type="Node2D" unique_id=1213737347]
 script = ExtResource("1_iae3p")
@@ -11,5 +13,11 @@ one_shot = true
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=757407343]
 anchor_mode = 0
+
+[node name="MetronomeTick" type="AudioStreamPlayer" parent="." unique_id=1972169118]
+stream = ExtResource("2_wvlwd")
+
+[node name="Song" type="AudioStreamPlayer" parent="." unique_id=1062996008]
+stream = ExtResource("3_ogepb")
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

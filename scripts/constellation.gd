@@ -1,26 +1,36 @@
 extends Node2D
 
 @onready var timer = $Timer
+@onready var metronome_tick = $MetronomeTick
+@onready var song = $Song
 var scene
-var note_data = NoteData.new()
 
 var note:Node2D
 var notes: Array[Node2D]
 var notes_total:int = 2
 
-var timing_circle
+var timing_circle:Node2D
+var timing_circles: Array[Node2D]
 
 var chart_active: bool = false
 var song_playing: bool = false
 
-var song_length: float = 20
+var song_length: float = 225.0
+
 var bpm: float = 138 
 var subdivision_per_beat: int = 12
 var beats_per_bar: int = 4
-var countdown = 3
+
+
+
+var countdown = 1
+var metronome_counter:int = 0
 
 var seconds_per_beat:float = 60.0/bpm
 var seconds_per_subdivision: float = 60.0/bpm/subdivision_per_beat
+
+var song_audio_delay:float = (3 * seconds_per_beat) #seconds
+var touch_offset:float = 0.15
 
 var current_beat: int = 0
 var current_bar: int = 0
@@ -28,23 +38,22 @@ var current_subdivision = 0
 
 var grid_size:Vector2
 
-const center = Vector2(40.5, 30.0)
+const center = Vector2(80.5, 45.5)
 
 func init_grid():
-	grid_size.x = get_viewport_rect().size.x/80
-	grid_size.y = get_viewport_rect().size.y/60
+	grid_size.x = get_viewport_rect().size.x/160
+	grid_size.y = get_viewport_rect().size.y/90
 
 var id_counter: int = 0
 
-func set_note_id():
-	note_data.id = id_counter
-	id_counter +=1
+var note_scale_max: float = 6.0
+var note_scale: float = 6.0 #minimum 4.0, max 5.0
 
-var note_scale: float = 4.0 #minimum 2.0, max 4.0
 
-func set_note_timing(bar:int, beat:int, sub:int)->float:
-	note.sub = bar*beats_per_bar*subdivision_per_beat +beat*subdivision_per_beat + sub
-	return (note.sub * seconds_per_subdivision)
+func set_timing_seconds(sub:int)->float:
+	return (sub * seconds_per_subdivision)
+func set_timing_sub(bar:int, beat:int, sub:int)->float:
+	return ((bar+1)*beats_per_bar*subdivision_per_beat + beat*subdivision_per_beat + sub)
 
 func set_note_position(x:float, y:float)->Vector2:
 	return Vector2(x*grid_size.x, y*grid_size.y)
@@ -54,18 +63,23 @@ func create_note(x: float, y:float, size_scale:float, bar:int, beat:int, sub:int
 	note.pos_coord = Vector2(x, y)
 	note.position = Vector2(x*grid_size.x, y*grid_size.y)
 	note.radius = grid_size.y*size_scale
-	note.timing = set_note_timing(bar, beat, sub)
+	note.sub = set_timing_sub(bar, beat, sub)
+	note.timing = set_timing_seconds(note.sub)
+	note.spawn_timing = note.timing - note.preview_dur
 
 	if !notes.is_empty():
 		for i in range(notes.size()-1, -1, -1): #this counts n,...3, 2, 1, 0
 			var x_dis:float = abs(notes[i].pos_coord.x - note.pos_coord.x)
 			var y_dis:float = abs(notes[i].pos_coord.y - note.pos_coord.y)
-			if (x_dis < 8.0) and (y_dis <8.0):
+			if (x_dis < note_scale_max*2) and (y_dis <note_scale_max*2):
 				note.blocked_by_id = i
 				notes[i].blocks_ids.append(notes.size())
+				break
+	
 	notes.append(note)
 	note.z_index = -(notes.size())
 	add_child(note)
+
 
 func _ready() -> void:
 	init_grid()
@@ -74,17 +88,23 @@ func _ready() -> void:
 	
 	scene = preload("res://scenes/note.tscn")
 	
+	
 	create_note(center.x		, center.y			, note_scale, 0, 0, 0)
-	create_note(center.x+8.0 	, center.y-8.0		, note_scale, 0, 0, 0)
+	create_note(center.x 		, center.y-6.0		, note_scale, 0, 1, 0)
+	create_note(center.x+6.0 	, center.y-12.0		, note_scale, 0, 2, 0)
+	create_note(center.x-6.0 	, center.y-12.0		, note_scale, 0, 3, 0)
 	
-	create_note(center.x 		, center.y-4.0		, note_scale, 0, 1, 0)
-	create_note(center.x+8.0 	, center.y-4.0		, note_scale, 0, 1, 0)
-	
-	create_note(center.x 		, center.y-8.0		, note_scale, 0, 2, 0)
-	create_note(center.x+8.0 	, center.y			, note_scale, 0, 2, 0)
-
-	print("chart start...")
-	print("song starting soon...")
+	scene = preload("res://scenes/timing_circle.tscn")
+	for i in notes.size():
+		timing_circle = scene.instantiate()
+		timing_circle.pos_coord = notes[i].pos_coord
+		timing_circle.position = notes[i].position
+		timing_circle.radius = notes[i].radius #implcit scale multiply by 8
+		timing_circle.sub = notes[i].sub
+		timing_circle.timing = set_timing_seconds(timing_circle.sub) - timing_circle.shrink_dur
+		timing_circles.append(timing_circle)
+		add_child(timing_circle)
+		
 	
 var song_time: float
 var next_note_id: int = 0
@@ -92,30 +112,49 @@ var next_note_id: int = 0
 var notes_id_pool: Array[int]
 
 var spawned_notes_id: Array[int]
+var spawned_timing_circles_id: Array[int]
 
 var current_note
 var current_note_id:int
+
+var song_started = false
+
 
 func _process(delta: float) -> void:
 	if chart_active:
 		if song_playing:
 			song_time = song_length - timer.time_left
 			while ((song_time) >= (current_subdivision+1)*seconds_per_subdivision):
-				while next_note_id < notes.size() and notes[next_note_id].timing <= song_time:
-					notes[next_note_id].spawn()
-					spawned_notes_id.append(next_note_id)
-					next_note_id += 1
-				current_subdivision += 1
+				if (current_beat == 5) and !song_started:
+					song.play(song_audio_delay)
+					song_started = true
+					
+				for i in notes.size():
+					if !(i in spawned_notes_id) and (notes[i].spawn_timing) < song_time:
+						notes[i].spawn()
+						spawned_notes_id.append(i)
+
+				for i in timing_circles.size():
+					if !(i in spawned_timing_circles_id) and timing_circles[i].timing < song_time:
+						timing_circles[i].spawn()
+						spawned_timing_circles_id.append(i)
+
 				if (current_subdivision % subdivision_per_beat == 0):
-					current_beat += 1
+					if (metronome_counter<4):
+						metronome_tick.play()
+						metronome_counter += 1
 					if (current_beat % beats_per_bar == 0):
-						current_bar +=1
-						
+							current_bar +=1
+					current_beat += 1
+				current_subdivision += 1
+				
 			for i in range(spawned_notes_id.size() -1, -1, -1):
 				current_note_id = spawned_notes_id[i] #current note id
 				current_note = notes[current_note_id] #this is the note scene instance
 				if current_note.state == current_note.State.HIT:
 					current_note.hit()
+					current_note.hit_time = song_time
+					print(song_time - current_note.timing - touch_offset)
 					for j in current_note.blocks_ids.size():
 						notes[current_note.blocks_ids[j]].blocked_by_id = -1
 					
@@ -125,7 +164,7 @@ func _process(delta: float) -> void:
 					print("song starts in: " + str(countdown - 1) + "...")
 				countdown -= 1
 				if countdown == 0:
-					print("song start")
+					pass
 					
 
 				#current_note.active = false
@@ -135,8 +174,8 @@ func _process(delta: float) -> void:
 			#for j in notes.size():
 				#if i == notes[j].blocked_by_id:
 					#notes[j].blocked_by_id = -1
-	
-		
+
+
 func _on_timer_timeout() -> void:
 	if !song_playing:
 		song_playing = true
