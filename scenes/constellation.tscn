@@ -11,13 +11,22 @@ script = ExtResource("1_iae3p")
 wait_time = 8.0
 one_shot = true
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=757407343]
-anchor_mode = 0
-
 [node name="MetronomeTick" type="AudioStreamPlayer" parent="." unique_id=1972169118]
 stream = ExtResource("2_wvlwd")
 
 [node name="Song" type="AudioStreamPlayer" parent="." unique_id=1062996008]
 stream = ExtResource("3_ogepb")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=757407343]
+visible = false
+anchor_mode = 0
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1868825722]
+layer = -10
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=396672818]
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0, 0, 0, 1)
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

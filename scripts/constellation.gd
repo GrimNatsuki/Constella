@@ -30,7 +30,7 @@ var seconds_per_beat:float = 60.0/bpm
 var seconds_per_subdivision: float = 60.0/bpm/subdivision_per_beat
 
 var song_audio_delay:float = (3 * seconds_per_beat) #seconds
-var touch_offset:float = 0.15
+var chart_offset:float = 0.15
 
 var current_beat: int = 0
 var current_bar: int = 0
@@ -118,7 +118,8 @@ var current_note
 var current_note_id:int
 
 var song_started = false
-
+var note_scores:float = 0.0
+var spark_score:int = 0
 
 func _process(delta: float) -> void:
 	if chart_active:
@@ -151,10 +152,27 @@ func _process(delta: float) -> void:
 			for i in range(spawned_notes_id.size() -1, -1, -1):
 				current_note_id = spawned_notes_id[i] #current note id
 				current_note = notes[current_note_id] #this is the note scene instance
-				if current_note.state == current_note.State.HIT:
-					current_note.hit()
-					current_note.hit_time = song_time
-					print(song_time - current_note.timing - touch_offset)
+				if current_note.state in [current_note.State.HIT, current_note.State.MISS]:
+					if current_note.state == current_note.State.HIT:
+						current_note.hit()
+						var touch_offset = song_time - current_note.timing - chart_offset
+						if abs(touch_offset) < 0.06:
+							note_scores += 1.0
+							if touch_offset > 0.03:
+								print("perfect late")
+							elif touch_offset < -0.03:
+								print("perfect early")
+							else:
+								spark_score += 1
+								print("perfect")
+						else:
+							if touch_offset > 0:
+								note_scores += 0.5
+								print("late")
+							elif touch_offset < 0:
+								note_scores += 0.5
+								print("early")
+						print((note_scores/notes.size())*100)
 					for j in current_note.blocks_ids.size():
 						notes[current_note.blocks_ids[j]].blocked_by_id = -1
 					
@@ -165,16 +183,6 @@ func _process(delta: float) -> void:
 				countdown -= 1
 				if countdown == 0:
 					pass
-					
-
-				#current_note.active = false
-				
-	#for i in notes.size():
-		#if !notes[i].touched:
-			#for j in notes.size():
-				#if i == notes[j].blocked_by_id:
-					#notes[j].blocked_by_id = -1
-
 
 func _on_timer_timeout() -> void:
 	if !song_playing:

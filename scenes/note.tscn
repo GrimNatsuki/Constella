@@ -1,12 +1,16 @@
 [gd_scene format=3 uid="uid://dqqubra16myfx"]
 
 [ext_resource type="Script" uid="uid://uhc25c6gqsxx" path="res://scripts/note.gd" id="1_t3yvt"]
+[ext_resource type="Texture2D" uid="uid://dsenqem1s8k5g" path="res://assets/tap01.png" id="2_1bnk6"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p10ry"]
 radius = 0.0
 
 [node name="Note" type="Node2D" unique_id=1114746095]
 script = ExtResource("1_t3yvt")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2121230302]
+texture = ExtResource("2_1bnk6")
 
 [node name="Area2D" type="Area2D" parent="." unique_id=965844452]
 

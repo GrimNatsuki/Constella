@@ -4,17 +4,19 @@ enum State{
 	INVISIBLE_INACTIVE, #invisible, no touch inputs
 	VISIBLE_INACTIVE, #visible, not in the timing window yet (preview_dur), blocked by other notes, no touch
 	VISIBLE_ACTIVE, #visible, can be touched, no blocking notes
-	HIT #already hit, might still be visible e.g. hit fx, no touch inputs, can't block other notes
+	HIT, #already hit, might still be visible e.g. hit fx, no touch inputs, can't block other notes
+	MISS
 }
 
 @onready var collision_shape_2d = $Area2D/CollisionShape2D
 @onready var timer = $Timer
+@onready var sprite = $Sprite2D
 
 var time: float
 
 #note properties
 var preview_dur:float = 1.0
-var hit_window:float = 0.3
+var hit_window:float = 0.5
 var spawn_timing = 0.0
 var timing: float = 0.0
 var sub: int = 0
@@ -34,6 +36,8 @@ var blocked_by_id:int = -1
 var blocks_ids:Array[int]
 var hit_time: float
 
+var sprite_rect:Vector2
+
 func spawn() -> void:
 	show()
 	activate()
@@ -52,10 +56,12 @@ func hit()->void:
 func miss()->void:
 	hide()
 	process_mode = Node.PROCESS_MODE_DISABLED
-	state = State.INVISIBLE_INACTIVE
-	print("miss")
+	state = State.MISS
 	
 func _ready() -> void:
+	sprite_rect = sprite.get_rect().size
+	print(str(sprite_rect.x) +", " +str(sprite_rect.y))
+	sprite.scale=Vector2(1/sprite_rect.x,1/sprite_rect.y)*(2.0*radius)
 	hide()
 	process_mode = Node.PROCESS_MODE_DISABLED
 	collision_shape_2d.shape.radius = radius
@@ -93,12 +99,13 @@ func _process(delta: float) -> void:
 			pass
 	if preview:
 		color.a = 1.0 - timer.time_left/preview_dur
+		sprite.modulate.a = 1.0 - timer.time_left/preview_dur
 	else:
 		pass
 	queue_redraw()
 
 func _on_draw() -> void:
-	draw_circle(Vector2.ZERO, radius, color, true, 0.0, true)
+	#draw_circle(Vector2.ZERO, radius, color, true, 0.0, true)
 	pass
 
 func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:

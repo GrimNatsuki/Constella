@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://clxjmwcht1o1h"]
+
+[ext_resource type="Script" uid="uid://da3nxibwb8int" path="res://scripts/judgement_text.gd" id="1_wqkms"]
+
+[node name="JudgementText" type="Node2D" unique_id=358548345]
+script = ExtResource("1_wqkms")
