@@ -1,9 +1,13 @@
 [gd_scene format=3 uid="uid://bx1guvjif2y02"]
 
 [ext_resource type="Script" uid="uid://c6lybqtj4l6gl" path="res://scripts/main.gd" id="1_sugp2"]
+[ext_resource type="PackedScene" uid="uid://cxahbkw7qi3ra" path="res://scenes/background.tscn" id="2_0wfyh"]
 
 [node name="main" type="Node2D" unique_id=2045591564]
 script = ExtResource("1_sugp2")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=990760662]
 anchor_mode = 0
+
+[node name="Background" parent="." unique_id=1863468333 instance=ExtResource("2_0wfyh")]
+layer = -10

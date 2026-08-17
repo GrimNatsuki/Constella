@@ -3,6 +3,7 @@ extends Node2D
 @onready var timer = $Timer
 @onready var metronome_tick = $MetronomeTick
 @onready var song = $Song
+
 var scene
 
 var note:Node2D
@@ -134,7 +135,6 @@ func _process(delta: float) -> void:
 					if !(i in spawned_notes_id) and (notes[i].spawn_timing) < song_time:
 						notes[i].spawn()
 						spawned_notes_id.append(i)
-
 				for i in timing_circles.size():
 					if !(i in spawned_timing_circles_id) and timing_circles[i].timing < song_time:
 						timing_circles[i].spawn()
@@ -153,7 +153,9 @@ func _process(delta: float) -> void:
 				current_note_id = spawned_notes_id[i] #current note id
 				current_note = notes[current_note_id] #this is the note scene instance
 				if current_note.state in [current_note.State.HIT, current_note.State.MISS]:
+					#print("hit or miss") #this prints fine
 					if current_note.state == current_note.State.HIT:
+						print("hit")
 						current_note.hit()
 						var touch_offset = song_time - current_note.timing - chart_offset
 						if abs(touch_offset) < 0.06:

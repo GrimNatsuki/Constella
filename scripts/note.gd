@@ -59,7 +59,7 @@ func miss()->void:
 	state = State.MISS
 	
 func _ready() -> void:
-	sprite_rect = sprite.get_rect().size
+	sprite_rect = Vector2(256.0, 256.0)
 	print(str(sprite_rect.x) +", " +str(sprite_rect.y))
 	sprite.scale=Vector2(1/sprite_rect.x,1/sprite_rect.y)*(2.0*radius)
 	hide()
@@ -99,7 +99,7 @@ func _process(delta: float) -> void:
 			pass
 	if preview:
 		color.a = 1.0 - timer.time_left/preview_dur
-		sprite.modulate.a = 1.0 - timer.time_left/preview_dur
+		#sprite.modulate.a = 1.0 - timer.time_left/preview_dur
 	else:
 		pass
 	queue_redraw()

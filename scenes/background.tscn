@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://cxahbkw7qi3ra"]
+
+[ext_resource type="Script" uid="uid://bgo25dn628x27" path="res://scripts/background.gd" id="1_bkp1e"]
+
+[node name="Background" type="CanvasLayer" unique_id=1863468333]
+script = ExtResource("1_bkp1e")
+
+[node name="BackgroundImg" type="Sprite2D" parent="." unique_id=1454754679]
+centered = false
