@@ -48,7 +48,7 @@ func init_grid():
 var id_counter: int = 0
 
 var note_scale_max: float = 6.0
-var note_scale: float = 6.0 #minimum 4.0, max 5.0
+var note_scale: float = 6.0 #minimum 4.0, max 6.0
 
 
 func set_timing_seconds(sub:int)->float:
@@ -59,10 +59,10 @@ func set_timing_sub(bar:int, beat:int, sub:int)->float:
 func set_note_position(x:float, y:float)->Vector2:
 	return Vector2(x*grid_size.x, y*grid_size.y)
 
-func create_note(x: float, y:float, size_scale:float, bar:int, beat:int, sub:int)->void:
+func create_note(type: NoteData.Type, pos_coord:Vector2, size_scale:float, bar:int, beat:int, sub:int)->void:
 	note = scene.instantiate()
-	note.pos_coord = Vector2(x, y)
-	note.position = Vector2(x*grid_size.x, y*grid_size.y)
+	note.pos_coord = pos_coord
+	note.position = pos_coord * grid_size
 	note.radius = grid_size.y*size_scale
 	note.sub = set_timing_sub(bar, beat, sub)
 	note.timing = set_timing_seconds(note.sub)
@@ -90,10 +90,10 @@ func _ready() -> void:
 	scene = preload("res://scenes/note.tscn")
 	
 	
-	create_note(center.x		, center.y			, note_scale, 0, 0, 0)
-	create_note(center.x 		, center.y-6.0		, note_scale, 0, 1, 0)
-	create_note(center.x+6.0 	, center.y-12.0		, note_scale, 0, 2, 0)
-	create_note(center.x-6.0 	, center.y-12.0		, note_scale, 0, 3, 0)
+	create_note(NoteData.Type.TAP, Vector2(center.x			, center.y		), note_scale, 0, 0, 0)
+	create_note(NoteData.Type.TAP, Vector2(center.x			, center.y-6.0	), note_scale, 0, 1, 0)
+	create_note(NoteData.Type.TAP, Vector2(center.x+6.0 	, center.y-12.0	), note_scale, 0, 2, 0)
+	create_note(NoteData.Type.TAP, Vector2(center.x-6.0 	, center.y-12.0	), note_scale, 0, 3, 0)
 	
 	scene = preload("res://scenes/timing_circle.tscn")
 	for i in notes.size():
@@ -155,7 +155,6 @@ func _process(delta: float) -> void:
 				if current_note.state in [current_note.State.HIT, current_note.State.MISS]:
 					#print("hit or miss") #this prints fine
 					if current_note.state == current_note.State.HIT:
-						print("hit")
 						current_note.hit()
 						var touch_offset = song_time - current_note.timing - chart_offset
 						if abs(touch_offset) < 0.06:
@@ -176,8 +175,9 @@ func _process(delta: float) -> void:
 								print("early")
 						print((note_scores/notes.size())*100)
 					for j in current_note.blocks_ids.size():
-						notes[current_note.blocks_ids[j]].blocked_by_id = -1
-					
+						var target_note = notes[current_note.blocks_ids[j]]
+						target_note.blocked_by_id = -1
+						target_note.activate()
 		else:
 			while(timer.time_left <= countdown):
 				if countdown != 1:

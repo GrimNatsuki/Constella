@@ -1,5 +1,7 @@
 extends CanvasLayer
 @onready var background_img = $BackgroundImg
+@onready var area = $Area2D
+
 var background_tex = preload("res://assets/bad_apple_bg.png")
 
 

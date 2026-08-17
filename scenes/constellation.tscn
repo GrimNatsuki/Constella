@@ -17,8 +17,4 @@ stream = ExtResource("2_wvlwd")
 [node name="Song" type="AudioStreamPlayer" parent="." unique_id=1062996008]
 stream = ExtResource("3_ogepb")
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=757407343]
-visible = false
-anchor_mode = 0
-
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

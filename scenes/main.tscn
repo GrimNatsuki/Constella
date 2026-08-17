@@ -3,6 +3,9 @@
 [ext_resource type="Script" uid="uid://c6lybqtj4l6gl" path="res://scripts/main.gd" id="1_sugp2"]
 [ext_resource type="PackedScene" uid="uid://cxahbkw7qi3ra" path="res://scenes/background.tscn" id="2_0wfyh"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ww435"]
+size = Vector2(1920, 1080)
+
 [node name="main" type="Node2D" unique_id=2045591564]
 script = ExtResource("1_sugp2")
 
@@ -11,3 +14,11 @@ anchor_mode = 0
 
 [node name="Background" parent="." unique_id=1863468333 instance=ExtResource("2_0wfyh")]
 layer = -10
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1172615053]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=726618934]
+position = Vector2(960, 540)
+shape = SubResource("RectangleShape2D_ww435")
+
+[connection signal="input_event" from="Area2D" to="." method="_on_area_2d_input_event"]

@@ -8,20 +8,26 @@ enum State{
 	MISS
 }
 
+
+
 @onready var collision_shape_2d = $Area2D/CollisionShape2D
 @onready var timer = $Timer
+
 @onready var sprite = $Sprite2D
+var active_tex = preload("res://assets/noteSprites/tap01_active.png")
+var inactive_tex = preload("res://assets/noteSprites/tap01_inactive.png")
 
 var time: float
 
 #note properties
+var type:NoteData.Type
 var preview_dur:float = 1.0
 var hit_window:float = 0.5
 var spawn_timing = 0.0
 var timing: float = 0.0
 var sub: int = 0
 var pos_coord:Vector2
-var note_type = NoteData.NoteType.TAP
+
 var radius: float
 
 var white = Color(1.0, 1.0, 1.0, 1.0)
@@ -47,6 +53,9 @@ func spawn() -> void:
 func activate()->void:
 	if blocked_by_id < 0:
 		input_active = true 
+		sprite.texture = active_tex
+	else:
+		sprite.texture = inactive_tex
 
 func hit()->void:
 	hide()
@@ -57,10 +66,11 @@ func miss()->void:
 	hide()
 	process_mode = Node.PROCESS_MODE_DISABLED
 	state = State.MISS
+
 	
 func _ready() -> void:
+	sprite.texture = active_tex
 	sprite_rect = Vector2(256.0, 256.0)
-	print(str(sprite_rect.x) +", " +str(sprite_rect.y))
 	sprite.scale=Vector2(1/sprite_rect.x,1/sprite_rect.y)*(2.0*radius)
 	hide()
 	process_mode = Node.PROCESS_MODE_DISABLED
@@ -88,13 +98,9 @@ func _process(delta: float) -> void:
 		State.INVISIBLE_INACTIVE:
 			pass
 		State.VISIBLE_INACTIVE:
-			color.r = 0.0
-			color.g = 0.0
-			color.b = 0.0
+			sprite.modulate = Color(0.5, 0.5, 0.5, 1.0)
 		State.VISIBLE_ACTIVE:
-			color.r = 1.0
-			color.g = 1.0
-			color.b = 1.0
+			sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		State.HIT:
 			pass
 	if preview:

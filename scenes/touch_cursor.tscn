@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dvvqmy5c4p3gy"]
+
+[ext_resource type="Script" uid="uid://2l5d7nuycwur" path="res://scenes/touch_cursor.gd" id="1_5wfvr"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ww435"]
+
+[node name="TouchCursor" type="Node2D" unique_id=121375196]
+script = ExtResource("1_5wfvr")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1433575321]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=28394976]
+shape = SubResource("CircleShape2D_ww435")
+
+[connection signal="draw" from="." to="." method="_on_draw"]

@@ -1,7 +1,7 @@
 extends RefCounted
 class_name NoteData
 
-enum NoteType{
+enum Type{
 	TAP,
 	HOLD,
 	FLICK,
@@ -9,10 +9,10 @@ enum NoteType{
 	TRACE
 }
 
-var id: int = 0
-var active: bool = true
-var timing: int = 0
 var position = Vector2.ZERO
 var scale:float = 1.0
+var bar:int = 0
+var beat:int = 0
+var sub: int = 0
 var duration: int = 0
-var type: NoteType = NoteType.TAP
+var type: Type = Type.TAP

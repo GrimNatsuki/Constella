@@ -10,7 +10,7 @@ var _scale = 8.0
 var timing: float = 0.0
 var sub: int = 0
 var pos_coord:Vector2
-var note_type = NoteData.NoteType.TRACE
+var note_type = NoteData.Type.TRACE
 
 var shrink_dur = 1.0
 var peak:float = 0.8
