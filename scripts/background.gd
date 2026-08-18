@@ -1,9 +1,8 @@
 extends CanvasLayer
 @onready var background_img = $BackgroundImg
-@onready var area = $Area2D
+
 
 var background_tex = preload("res://assets/bad_apple_bg.png")
-
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

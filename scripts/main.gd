@@ -29,7 +29,8 @@ func _process(delta: float) -> void:
 	pass
 
 
-func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+#func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+func _input(event: InputEvent) -> void:
 	if (event is InputEventScreenTouch) or (event is InputEventScreenDrag):
 		if (event is InputEventScreenTouch):
 			if event.pressed:
@@ -42,7 +43,6 @@ func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) 
 		
 		if (event is InputEventScreenDrag):
 			if event.index == 1:
-				#print(event.position)
 				pass
 		for i in cursors.size():
 			if i == event.index:

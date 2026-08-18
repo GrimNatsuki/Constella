@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dsenqem1s8k5g"
-path="res://.godot/imported/tap01_active.png-688aeaa39159139465e7593726bdd049.ctex"
+uid="uid://cqyfact77odce"
+path="res://.godot/imported/red_tap_inactive_01.png-e92c1cdd0cc9c04c5b3dd077c37051ef.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/noteSprites/tap01_active.png"
-dest_files=["res://.godot/imported/tap01_active.png-688aeaa39159139465e7593726bdd049.ctex"]
+source_file="res://assets/noteSprites/red_tap_inactive_01.png"
+dest_files=["res://.godot/imported/red_tap_inactive_01.png-e92c1cdd0cc9c04c5b3dd077c37051ef.ctex"]
 
 [params]
 

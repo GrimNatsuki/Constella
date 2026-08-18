@@ -14,13 +14,16 @@ enum State{
 @onready var timer = $Timer
 
 @onready var sprite = $Sprite2D
-var active_tex = preload("res://assets/noteSprites/tap01_active.png")
-var inactive_tex = preload("res://assets/noteSprites/tap01_inactive.png")
+var active_tex
+var inactive_tex
 
 var time: float
 
 #note properties
 var type:NoteData.Type
+
+var hand = NoteData.Hand.RIGHT
+
 var preview_dur:float = 1.0
 var hit_window:float = 0.5
 var spawn_timing = 0.0
@@ -69,6 +72,12 @@ func miss()->void:
 
 	
 func _ready() -> void:
+	if hand == NoteData.Hand.LEFT:
+		active_tex = preload("res://assets/noteSprites/blue_tap_active_01.png")
+		inactive_tex = preload("res://assets/noteSprites/blue_tap_inactive_01.png")
+	else:
+		active_tex = preload("res://assets/noteSprites/red_tap_active_01.png")
+		inactive_tex = preload("res://assets/noteSprites/red_tap_inactive_01.png")
 	sprite.texture = active_tex
 	sprite_rect = Vector2(256.0, 256.0)
 	sprite.scale=Vector2(1/sprite_rect.x,1/sprite_rect.y)*(2.0*radius)

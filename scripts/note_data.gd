@@ -9,7 +9,13 @@ enum Type{
 	TRACE
 }
 
+enum Hand{
+	RIGHT,
+	LEFT
+}
+
 var position = Vector2.ZERO
+var hand = Hand.RIGHT
 var scale:float = 1.0
 var bar:int = 0
 var beat:int = 0

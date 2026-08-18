@@ -59,8 +59,17 @@ func set_timing_sub(bar:int, beat:int, sub:int)->float:
 func set_note_position(x:float, y:float)->Vector2:
 	return Vector2(x*grid_size.x, y*grid_size.y)
 
-func create_note(type: NoteData.Type, pos_coord:Vector2, size_scale:float, bar:int, beat:int, sub:int)->void:
+
+func create_note(type: NoteData.Type, hand:NoteData.Hand, pos_coord:Vector2, size_scale:float, bar:int, beat:int, sub:int)->void:
+	if (notes.is_empty()) or (notes[-1].type != type):
+		match type:
+			NoteData.Type.TAP:
+				scene = preload("res://scenes/tap.tscn")
+			_:
+				pass
 	note = scene.instantiate()
+	note.hand = hand
+	note.type = type
 	note.pos_coord = pos_coord
 	note.position = pos_coord * grid_size
 	note.radius = grid_size.y*size_scale
@@ -87,13 +96,12 @@ func _ready() -> void:
 	timer.start(countdown)
 	chart_active = true
 	
-	scene = preload("res://scenes/note.tscn")
+	#scene = preload("res://scenes/note.tscn")
 	
-	
-	create_note(NoteData.Type.TAP, Vector2(center.x			, center.y		), note_scale, 0, 0, 0)
-	create_note(NoteData.Type.TAP, Vector2(center.x			, center.y-6.0	), note_scale, 0, 1, 0)
-	create_note(NoteData.Type.TAP, Vector2(center.x+6.0 	, center.y-12.0	), note_scale, 0, 2, 0)
-	create_note(NoteData.Type.TAP, Vector2(center.x-6.0 	, center.y-12.0	), note_scale, 0, 3, 0)
+	create_note(NoteData.Type.TAP, NoteData.Hand.RIGHT	, Vector2(center.x+18.0		, center.y		), note_scale, 0, 0, 0)
+	create_note(NoteData.Type.TAP, NoteData.Hand.LEFT	, Vector2(center.x-18.0		, center.y		), note_scale, 0, 1, 0)
+	create_note(NoteData.Type.TAP, NoteData.Hand.RIGHT	, Vector2(center.x+12.0 	, center.y-12.0	), note_scale, 0, 2, 0)
+	create_note(NoteData.Type.TAP, NoteData.Hand.LEFT	, Vector2(center.x-12.0 	, center.y-12.0	), note_scale, 0, 3, 0)
 	
 	scene = preload("res://scenes/timing_circle.tscn")
 	for i in notes.size():
@@ -153,7 +161,7 @@ func _process(delta: float) -> void:
 				current_note_id = spawned_notes_id[i] #current note id
 				current_note = notes[current_note_id] #this is the note scene instance
 				if current_note.state in [current_note.State.HIT, current_note.State.MISS]:
-					#print("hit or miss") #this prints fine
+
 					if current_note.state == current_note.State.HIT:
 						current_note.hit()
 						var touch_offset = song_time - current_note.timing - chart_offset
