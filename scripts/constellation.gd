@@ -19,23 +19,22 @@ var song_playing: bool = false
 var song_length: float = 225.0
 
 var bpm: float = 138 
-var subdivision_per_beat: int = 12
+var sub_per_beat: int = 12
 var beats_per_bar: int = 4
-
 
 
 var countdown = 1
 var metronome_counter:int = 0
 
 var seconds_per_beat:float = 60.0/bpm
-var seconds_per_subdivision: float = 60.0/bpm/subdivision_per_beat
+var seconds_per_sub: float = 60.0/bpm/sub_per_beat
 
 var song_audio_delay:float = (3 * seconds_per_beat) #seconds
 var chart_offset:float = 0.15
 
 var current_beat: int = 0
 var current_bar: int = 0
-var current_subdivision = 0
+var current_sub = 0
 
 var grid_size:Vector2
 
@@ -52,24 +51,16 @@ var note_scale: float = 6.0 #minimum 4.0, max 6.0
 
 
 func set_timing_seconds(sub:int)->float:
-	return (sub * seconds_per_subdivision)
+	return (sub * seconds_per_sub)
 func set_timing_sub(bar:int, beat:int, sub:int)->float:
-	return ((bar+1)*beats_per_bar*subdivision_per_beat + beat*subdivision_per_beat + sub)
+	return ((bar+1)*beats_per_bar*sub_per_beat + beat*sub_per_beat + sub)
 
 func set_note_position(x:float, y:float)->Vector2:
 	return Vector2(x*grid_size.x, y*grid_size.y)
 
-
-func create_note(type: NoteData.Type, hand:NoteData.Hand, pos_coord:Vector2, size_scale:float, bar:int, beat:int, sub:int)->void:
-	if (notes.is_empty()) or (notes[-1].type != type):
-		match type:
-			NoteData.Type.TAP:
-				scene = preload("res://scenes/tap.tscn")
-			_:
-				pass
+func create_tap_note(hand:NoteData.Hand, pos_coord:Vector2, size_scale:float, bar:int, beat:int, sub:int)->void:
 	note = scene.instantiate()
 	note.hand = hand
-	note.type = type
 	note.pos_coord = pos_coord
 	note.position = pos_coord * grid_size
 	note.radius = grid_size.y*size_scale
@@ -85,11 +76,49 @@ func create_note(type: NoteData.Type, hand:NoteData.Hand, pos_coord:Vector2, siz
 				note.blocked_by_id = i
 				notes[i].blocks_ids.append(notes.size())
 				break
-	
+
+	notes.append(note)
+	note.z_index = -(notes.size())
+	add_child(note)
+func create_catch_note(hand:NoteData.Hand, pos_coord:Vector2, size_scale:float, bar:int, beat:int, sub:int)->void:
+	note = scene.instantiate()
+	note.hand = hand
+	note.pos_coord = pos_coord
+	note.position = pos_coord * grid_size
+	note.radius = grid_size.y*size_scale
+	note.sub = set_timing_sub(bar, beat, sub)
+	note.timing = set_timing_seconds(note.sub)
+	note.spawn_timing = note.timing - note.preview_dur
+
+	if !notes.is_empty():
+		for i in range(notes.size()-1, -1, -1): #this counts n,...3, 2, 1, 0
+			var x_dis:float = abs(notes[i].pos_coord.x - note.pos_coord.x)
+			var y_dis:float = abs(notes[i].pos_coord.y - note.pos_coord.y)
+			if (x_dis < note_scale_max*2) and (y_dis <note_scale_max*2):
+				note.blocked_by_id = i
+				notes[i].blocks_ids.append(notes.size())
+				break
+
 	notes.append(note)
 	note.z_index = -(notes.size())
 	add_child(note)
 
+func create_note(type: NoteData.Type, hand:NoteData.Hand, pos_coord:Vector2, size_scale:float, bar:int, beat:int, sub:int)->void:
+	if (notes.is_empty()) or (notes[-1].type != type):
+		match type:
+			NoteData.Type.TAP:
+				scene = preload("res://scenes/tap.tscn")
+			NoteData.Type.CATCH:
+				scene = preload("res://scenes/catch.tscn")
+			_:
+				pass
+
+	match type:
+		NoteData.Type.TAP:
+			create_tap_note(hand, pos_coord, size_scale, bar, beat, sub)
+		NoteData.Type.CATCH:
+			create_catch_note(hand, pos_coord, size_scale, bar, beat, sub)
+			pass
 
 func _ready() -> void:
 	init_grid()
@@ -101,7 +130,8 @@ func _ready() -> void:
 	create_note(NoteData.Type.TAP, NoteData.Hand.RIGHT	, Vector2(center.x+18.0		, center.y		), note_scale, 0, 0, 0)
 	create_note(NoteData.Type.TAP, NoteData.Hand.LEFT	, Vector2(center.x-18.0		, center.y		), note_scale, 0, 1, 0)
 	create_note(NoteData.Type.TAP, NoteData.Hand.RIGHT	, Vector2(center.x+12.0 	, center.y-12.0	), note_scale, 0, 2, 0)
-	create_note(NoteData.Type.TAP, NoteData.Hand.LEFT	, Vector2(center.x-12.0 	, center.y-12.0	), note_scale, 0, 3, 0)
+	create_note(NoteData.Type.TAP, NoteData.Hand.LEFT	, Vector2(center.x-2.0	 	, center.y		), note_scale, 0, 3, 0)
+	create_note(NoteData.Type.CATCH, NoteData.Hand.LEFT	, Vector2(center.x	 		, center.y		), note_scale, 0, 3, int(0.5*sub_per_beat))
 	
 	scene = preload("res://scenes/timing_circle.tscn")
 	for i in notes.size():
@@ -134,7 +164,7 @@ func _process(delta: float) -> void:
 	if chart_active:
 		if song_playing:
 			song_time = song_length - timer.time_left
-			while ((song_time) >= (current_subdivision+1)*seconds_per_subdivision):
+			while ((song_time) >= (current_sub+1)*seconds_per_sub):
 				if (current_beat == 5) and !song_started:
 					song.play(song_audio_delay)
 					song_started = true
@@ -148,20 +178,19 @@ func _process(delta: float) -> void:
 						timing_circles[i].spawn()
 						spawned_timing_circles_id.append(i)
 
-				if (current_subdivision % subdivision_per_beat == 0):
+				if (current_sub % sub_per_beat == 0):
 					if (metronome_counter<4):
 						metronome_tick.play()
 						metronome_counter += 1
 					if (current_beat % beats_per_bar == 0):
 							current_bar +=1
 					current_beat += 1
-				current_subdivision += 1
+				current_sub += 1
 				
 			for i in range(spawned_notes_id.size() -1, -1, -1):
 				current_note_id = spawned_notes_id[i] #current note id
 				current_note = notes[current_note_id] #this is the note scene instance
 				if current_note.state in [current_note.State.HIT, current_note.State.MISS]:
-
 					if current_note.state == current_note.State.HIT:
 						current_note.hit()
 						var touch_offset = song_time - current_note.timing - chart_offset

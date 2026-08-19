@@ -1,3 +1,19 @@
 [gd_scene format=3 uid="uid://dbyc7uct4x7ri"]
 
+[ext_resource type="Script" uid="uid://bkgv3s85a7oup" path="res://scripts/catch.gd" id="1_avnij"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ww435"]
+
 [node name="Catch" type="Node2D" unique_id=2017769628]
+script = ExtResource("1_avnij")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1962015736]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1791691094]
+shape = SubResource("CircleShape2D_ww435")
+
+[node name="Timer" type="Timer" parent="." unique_id=1613879670]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1572795586]
+
+[connection signal="input_event" from="Area2D" to="." method="_on_area_2d_input_event"]

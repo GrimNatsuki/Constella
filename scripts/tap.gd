@@ -1,13 +1,12 @@
 extends Node2D
 
 enum State{
-	INVISIBLE_INACTIVE, #invisible, no touch inputs
-	VISIBLE_INACTIVE, #visible, not in the timing window yet (preview_dur), blocked by other notes, no touch
-	VISIBLE_ACTIVE, #visible, can be touched, no blocking notes
-	HIT, #already hit, might still be visible e.g. hit fx, no touch inputs, can't block other notes
+	INVISIBLE_INACTIVE,
+	VISIBLE_INACTIVE,
+	VISIBLE_ACTIVE,
+	HIT,
 	MISS
 }
-
 
 
 @onready var collision_shape_2d = $Area2D/CollisionShape2D
@@ -20,32 +19,36 @@ var inactive_tex
 var time: float
 
 #note properties
-var type:NoteData.Type
 
+var type:NoteData.Type
 var hand = NoteData.Hand.RIGHT
+var pos_coord:Vector2
+var sub: int = 0
+var duration: float = 0
 
 var preview_dur:float = 1.0
 var hit_window:float = 0.5
 var spawn_timing = 0.0
 var timing: float = 0.0
-var sub: int = 0
-var pos_coord:Vector2
 
 var radius: float
 
-var white = Color(1.0, 1.0, 1.0, 1.0)
-var black = Color(0.0, 0.0, 0.0, 1.0)
-var color:Color
+#var white = Color(1.0, 1.0, 1.0, 1.0)
+#var black = Color(0.0, 0.0, 0.0, 1.0)
+#var color:Color
 
 var state
 
+var can_be_blocked = true
+var can_block = true
 var touched: bool = false
 var input_active: bool = false
 var blocked_by_id:int = -1
 var blocks_ids:Array[int]
-var hit_time: float
+
 
 var sprite_rect:Vector2
+
 
 func spawn() -> void:
 	show()
@@ -70,21 +73,23 @@ func miss()->void:
 	process_mode = Node.PROCESS_MODE_DISABLED
 	state = State.MISS
 
-	
-func _ready() -> void:
+func load_tex()->void:
 	if hand == NoteData.Hand.LEFT:
 		active_tex = preload("res://assets/noteSprites/blue_tap_active_01.png")
 		inactive_tex = preload("res://assets/noteSprites/blue_tap_inactive_01.png")
 	else:
 		active_tex = preload("res://assets/noteSprites/red_tap_active_01.png")
 		inactive_tex = preload("res://assets/noteSprites/red_tap_inactive_01.png")
+	
+func _ready() -> void:
+	load_tex()
 	sprite.texture = active_tex
 	sprite_rect = Vector2(256.0, 256.0)
 	sprite.scale=Vector2(1/sprite_rect.x,1/sprite_rect.y)*(2.0*radius)
+	collision_shape_2d.shape.radius = radius
 	hide()
 	process_mode = Node.PROCESS_MODE_DISABLED
-	collision_shape_2d.shape.radius = radius
-		
+
 var preview:bool = true
 
 func _process(delta: float) -> void:
@@ -107,14 +112,14 @@ func _process(delta: float) -> void:
 		State.INVISIBLE_INACTIVE:
 			pass
 		State.VISIBLE_INACTIVE:
-			sprite.modulate = Color(0.5, 0.5, 0.5, 1.0)
+			sprite.modulate = Color(0.8, 0.8, 0.8, 1.0)
 		State.VISIBLE_ACTIVE:
 			sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		State.HIT:
 			pass
 	if preview:
-		color.a = 1.0 - timer.time_left/preview_dur
-		#sprite.modulate.a = 1.0 - timer.time_left/preview_dur
+
+		sprite.modulate.a = 1.0 - timer.time_left/preview_dur
 	else:
 		pass
 	queue_redraw()
@@ -137,4 +142,3 @@ func _on_timer_timeout() -> void:
 		preview = false
 	else:
 		miss()
-	pass
